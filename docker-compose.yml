@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+
+  app:
+    container_name: datafeeder_cli_app
+    build:
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: mysql
+      DB_USERNAME: root
+      DB_PASSWORD: pass
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/app/
+    depends_on:
+      - mysql
+    networks:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql:/var/lib/mysql
+    networks:
+      - app
+
+networks:
+
+  app:
+    driver: bridge
+
+volumes:
+  mysql:
