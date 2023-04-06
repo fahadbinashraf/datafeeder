@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Models\Product;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Log;
 use LaravelZero\Framework\Commands\Command;
 
 class ImportProducts extends Command
@@ -32,6 +33,11 @@ class ImportProducts extends Command
         //
         try {
             $xml = simplexml_load_file(base_path('data/feed.xml'));
+            $this->info("Truncating the products table...");
+            Product::truncate();
+            $this->info("Starting to import products...");
+            $bar = $this->output->createProgressBar(count($xml->item));
+            $bar->start();
             foreach ($xml->item as $item) {
                 $product = new Product;
                 $product->entity_id = $item->entity_id;
@@ -39,7 +45,7 @@ class ImportProducts extends Command
                 $product->sku = $item->sku;
                 $product->name = $item->name;
                 $product->short_desc = $item->shortDesc;
-                $product->price = $item->price || 0;
+                $product->price = $item->price;
                 $product->link = $item->link;
                 $product->image = $item->image;
                 $product->brand = $item->Brand;
@@ -52,10 +58,12 @@ class ImportProducts extends Command
                 $product->facebook = $item->Facebook;
                 $product->is_k_cup = $item->IsKCup;
                 $product->save();
-                $this->info('Added product ' . $product->name . " to the database");
+                $bar->advance();
             }
+            $bar->finish();
         } catch (\Exception $e) {
             $this->error($e->getMessage());
+            Log::error($e->getMessage());
         }
 
     }
