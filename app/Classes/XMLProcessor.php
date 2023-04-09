@@ -2,6 +2,7 @@
 namespace App\Classes;
 
 use Exception;
+use Illuminate\Support\Carbon;
 use SimpleXMLElement;
 use XMLReader;
 
@@ -16,6 +17,7 @@ class XMLProcessor
         $reader = new XMLReader();
 
         $reader->open(base_path($this->file));
+        $now = Carbon::now()->toDateTimeString();
 
         while ($reader->read()) {
             if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'item') {
@@ -39,6 +41,8 @@ class XMLProcessor
                     'in_stock' => $itemNode->Instock,
                     'facebook' => $itemNode->Facebook,
                     'is_k_cup' => $itemNode->IsKCup,
+                    'created_at' => $now,
+                    'updated_at' => $now
                 ];
             }
         }
