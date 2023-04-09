@@ -34,20 +34,19 @@ class ImportProducts extends Command
         //
         try {
             $filename = $this->argument('filename');
-            // create a new XML processor instance
-            $processor = new XMLProcessor();
+            // Create a new XML processor instance
+            $processor = new XMLProcessor($filename);
 
             $this->info("Truncating the products table...");
-            // truncate the products table before importing
+            // Truncate the products table before importing
             Product::truncate();
 
             $this->info("Starting to import products...");
-
             // Initialize the batch array, batch size and the count
             $batch = [];
-            $batchSize = 1000;
+            $batchSize = 500;
             $count = 0;
-            foreach ($processor->process(base_path($filename)) as $item) {
+            foreach ($processor->process() as $item) {
                 // Add items to batch array and increase the count
                 $batch[] = $item;
                 $count++;
@@ -66,20 +65,8 @@ class ImportProducts extends Command
         } catch (\Exception $e) {
             // output the error message to console
             $this->error('Import error: ' . $e->getMessage());
-            $this->error($e->getTraceAsString());
             // Log the exception message
-            Log::error('Import error: ' . $e->getMessage() . "\n[stacktrace]\n" . $e->getTraceAsString());
+            Log::error('Import error: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Define the command's schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
-     */
-    public function schedule(Schedule $schedule): void
-    {
-        // $schedule->command(static::class)->everyMinute();
     }
 }

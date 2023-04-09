@@ -7,36 +7,38 @@ use XMLReader;
 
 class XMLProcessor
 {
-    public function process($file)
+
+    function __construct(private $file)
+    {
+    }
+    public function process()
     {
         $reader = new XMLReader();
 
-        if (!$reader->open($file)) {
-            throw new Exception("Error: Unable to open XML file: $file");
-        }
+        $reader->open(base_path($this->file));
 
         while ($reader->read()) {
             if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'item') {
                 $itemNode = new SimpleXMLElement($reader->readOuterXml());
                 yield [
-                    'entity_id' => (integer) $itemNode->entity_id,
-                    'category_name' => (string) $itemNode->CategoryName,
-                    'sku' => (string) $itemNode->sku,
-                    'name' => (string) $itemNode->name,
-                    'description' => (string) $itemNode->description,
-                    'short_desc' => (string) $itemNode->shortdesc,
-                    'price' => (string) $itemNode->price || 0,
-                    'link' => (string) $itemNode->link,
-                    'image' => (string) $itemNode->image,
-                    'brand' => (string) $itemNode->Brand,
-                    'rating' => (integer) $itemNode->Rating || 0,
-                    'caffeine_type' => (string) $itemNode->CaffeineType,
-                    'count' => (integer) $itemNode->Count || 0,
-                    'flavored' => (string) $itemNode->Flavored,
-                    'seasonal' => (string) $itemNode->Seasonal,
-                    'in_stock' => (string) $itemNode->InStock,
-                    'facebook' => (boolean) $itemNode->Facebook,
-                    'is_k_cup' => (boolean) $itemNode->IsKCup,
+                    'entity_id' => $itemNode->entity_id,
+                    'category_name' => $itemNode->CategoryName,
+                    'sku' => $itemNode->sku,
+                    'name' => $itemNode->name,
+                    'description' => $itemNode->description,
+                    'short_desc' => $itemNode->shortdesc,
+                    'price' => !empty($itemNode->price) ? $itemNode->price : 0,
+                    'link' => $itemNode->link,
+                    'image' => $itemNode->image,
+                    'brand' => $itemNode->Brand,
+                    'rating' => !empty($itemNode->Rating) ? $itemNode->Rating : 0,
+                    'caffeine_type' => $itemNode->CaffeineType,
+                    'count' => !empty($itemNode->Count) ? $itemNode->Count : 0,
+                    'flavored' => $itemNode->Flavored,
+                    'seasonal' => $itemNode->Seasonal,
+                    'in_stock' => $itemNode->Instock,
+                    'facebook' => $itemNode->Facebook,
+                    'is_k_cup' => $itemNode->IsKCup,
                 ];
             }
         }
