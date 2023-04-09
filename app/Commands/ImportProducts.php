@@ -4,7 +4,6 @@ namespace App\Commands;
 
 use App\Classes\XMLProcessor;
 use App\Models\Product;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Log;
 use LaravelZero\Framework\Commands\Command;
 
