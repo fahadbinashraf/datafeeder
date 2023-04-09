@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->string('category_name');
             $table->string('sku');
             $table->string('name');
-            $table->string('description')->nullable();
-            $table->string('short_desc')->nullable();
+            $table->text('description')->nullable();
+            $table->text('short_desc')->nullable();
             $table->decimal('price', 10, 4)->default(0);
             $table->string('link');
             $table->string('image');

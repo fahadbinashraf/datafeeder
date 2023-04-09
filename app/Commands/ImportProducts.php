@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Classes\XMLProcessor;
 use App\Models\Product;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Log;
@@ -14,14 +15,14 @@ class ImportProducts extends Command
      *
      * @var string
      */
-    protected $signature = 'import-products';
+    protected $signature = 'import:products {filename : The name of the XML file to import}';
 
     /**
      * The description of the command.
      *
      * @var string
      */
-    protected $description = 'Reads data from an xml file and feeds it to the db';
+    protected $description = 'Import products data from an XML file into the database';
 
     /**
      * Execute the console command.
@@ -32,40 +33,43 @@ class ImportProducts extends Command
     {
         //
         try {
-            $xml = simplexml_load_file(base_path('data/feed.xml'));
-            $this->info("Truncating the products table...");
-            Product::truncate();
-            $this->info("Starting to import products...");
-            $bar = $this->output->createProgressBar(count($xml->item));
-            $bar->start();
-            foreach ($xml->item as $item) {
-                $product = new Product;
-                $product->entity_id = $item->entity_id;
-                $product->category_name = $item->CategoryName;
-                $product->sku = $item->sku;
-                $product->name = $item->name;
-                $product->short_desc = $item->shortDesc;
-                $product->price = $item->price;
-                $product->link = $item->link;
-                $product->image = $item->image;
-                $product->brand = $item->Brand;
-                $product->rating = $item->Rating || null;
-                $product->caffeine_type = $item->CaffeineType;
-                $product->count = $item->Count || null;
-                $product->flavored = $item->Flavored;
-                $product->seasonal = $item->Seasonal;
-                $product->in_stock = $item->InStock;
-                $product->facebook = $item->Facebook;
-                $product->is_k_cup = $item->IsKCup;
-                $product->save();
-                $bar->advance();
-            }
-            $bar->finish();
-        } catch (\Exception $e) {
-            $this->error($e->getMessage());
-            Log::error($e->getMessage());
-        }
+            $filename = $this->argument('filename');
+            // create a new XML processor instance
+            $processor = new XMLProcessor();
 
+            $this->info("Truncating the products table...");
+            // truncate the products table before importing
+            Product::truncate();
+
+            $this->info("Starting to import products...");
+
+            // Initialize the batch array, batch size and the count
+            $batch = [];
+            $batchSize = 1000;
+            $count = 0;
+            foreach ($processor->process(base_path($filename)) as $item) {
+                // Add items to batch array and increase the count
+                $batch[] = $item;
+                $count++;
+                // if we have reached our batch size, insert them into the database
+                if ($count % $batchSize == 0) {
+                    Product::insert($batch);
+                    $batch = [];
+                }
+            }
+            // Insert any remaining items into the database
+            if (!empty($batch)) {
+                Product::insert($batch);
+            }
+            // Output a success message with items count
+            $this->info("Import complete. $count records inserted.");
+        } catch (\Exception $e) {
+            // output the error message to console
+            $this->error('Import error: ' . $e->getMessage());
+            $this->error($e->getTraceAsString());
+            // Log the exception message
+            Log::error('Import error: ' . $e->getMessage() . "\n[stacktrace]\n" . $e->getTraceAsString());
+        }
     }
 
     /**
