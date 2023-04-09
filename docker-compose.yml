@@ -1,29 +1,32 @@
 version: '3.8'
 
 services:
-
   app:
     container_name: datafeeder_cli_app
     build:
+      context: .
       dockerfile: Dockerfile
-    environment:
-      DB_HOST: mysql
-      DB_USERNAME: root
-      DB_PASSWORD: pass
-    ports:
-      - 8000:8000
     volumes:
-      - ./:/app/
+      - .:/app
     depends_on:
-      - mysql
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: store
+      DB_USERNAME: user
+      DB_PASSWORD: pass
     networks:
       - app
 
-  mysql:
-    image: mysql:8.0
+  db:
+    image: mysql:latest
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=pass
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: store
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
     ports:
       - 3306:3306
     volumes:
@@ -31,13 +34,11 @@ services:
     networks:
       - app
 
-  phpmyadmin:
-    image: phpmyadmin
+  adminer:
+    image: adminer
     restart: always
     ports:
-      - 8080:80
-    environment:
-      - PMA_ARBITRARY=1
+      - "8080:8080"
     networks:
       - app
 
