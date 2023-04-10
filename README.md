@@ -1,40 +1,89 @@
-<a href="https://supportukrainenow.org/"><img src="https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg" width="100%"></a>
+# Coding Task – Data Feed
 
-------
+A command-line program, based on [Laravel Zero](https://laravel-zero.com/).
 
-<p align="center">
-    <img title="Laravel Zero" height="100" src="https://raw.githubusercontent.com/laravel-zero/docs/master/images/logo/laravel-zero-readme.png" />
-</p>
+## Specifications
 
-<p align="center">
-  <a href="https://github.com/laravel-zero/framework/actions"><img src="https://github.com/laravel-zero/laravel-zero/actions/workflows/tests.yml/badge.svg" alt="Build Status"></img></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/dt/laravel-zero/framework.svg" alt="Total Downloads"></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/v/laravel-zero/framework.svg?label=stable" alt="Latest Stable Version"></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/l/laravel-zero/framework.svg" alt="License"></a>
-</p>
+-   The program processes a local XML file and pushes the data of that XML file to a DB of choice.
+-   Errors are logged to a file
+-   Application is tested using PHPUnit
 
-<h4> <center>This is a <bold>community project</bold> and not an official Laravel one </center></h4>
+## Installation
 
-Laravel Zero was created by [Nuno Maduro](https://github.com/nunomaduro) and [Owen Voke](https://github.com/owenvoke), and is a micro-framework that provides an elegant starting point for your console application. It is an **unofficial** and customized version of Laravel optimized for building command-line applications.
+### clone the git repository
 
-- Built on top of the [Laravel](https://laravel.com) components.
-- Optional installation of Laravel [Eloquent](https://laravel-zero.com/docs/database/), Laravel [Logging](https://laravel-zero.com/docs/logging/) and many others.
-- Supports interactive [menus](https://laravel-zero.com/docs/build-interactive-menus/) and [desktop notifications](https://laravel-zero.com/docs/send-desktop-notifications/) on Linux, Windows & MacOS.
-- Ships with a [Scheduler](https://laravel-zero.com/docs/task-scheduling/) and  a [Standalone Compiler](https://laravel-zero.com/docs/build-a-standalone-application/).
-- Integration with [Collision](https://github.com/nunomaduro/collision) - Beautiful error reporting
+```bash
+git clone git@github.com:fahadbinashraf/datafeeder.git
+```
 
-------
+### Setting up the .env file
 
-## Documentation
+The database and logging configurations are done using the environment file
 
-For full documentation, visit [laravel-zero.com](https://laravel-zero.com/).
+Copy the .env.example:
 
-## Support the development
-**Do you like this project? Support it by donating**
+```bash
+cp .env.example .env
+```
 
-- PayPal: [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=66BYDWAT92N6L)
-- Patreon: [Donate](https://www.patreon.com/nunomaduro)
+## Running with Docker
+
+The application can be simply executed using docker-compose.
+
+### Prerequisites
+
+-   docker
+-   docker-compose
+
+### The XML data file (feed.xml)
+
+The XML file by default should be placed in the /data/feed.xml which is used when running the docker container.
+
+### Running docker-compose
+
+```bash
+docker-comopse up --build
+```
+
+This will do the following:
+
+-   build the environment
+-   install composer dependencies
+-   run database migration (to create the table)
+-   run unit tests
+-   run the import:products command
+
+## Without Docker
+
+Make sure you have following installed:
+
+-   PHP 8.1
+-   Composer 2
+
+Install dependencies:
+
+```bash
+composer install
+```
+
+Run database migrations:
+
+```bash
+php datafeeder migrate
+```
+
+Run tests:
+
+```bash
+php datafeeder test
+```
+
+Run the import command:
+
+```bash
+php datafeeder import:products /path/to/file.xml
+```
 
 ## License
 
-Laravel Zero is an open-source software licensed under the MIT license.
+[MIT](https://choosealicense.com/licenses/mit/)
