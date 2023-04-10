@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - ./:/app
     depends_on:
       - db
     environment:
@@ -16,6 +16,7 @@ services:
       DB_DATABASE: store
       DB_USERNAME: user
       DB_PASSWORD: pass
+    command: ["sh", "-c", "while ! mysqladmin ping -h db --silent; do sleep 1; done; composer install; php datafeeder migrate; php datafeeder test; php datafeeder import:products /data/feed.xml"]
     networks:
       - app
 
